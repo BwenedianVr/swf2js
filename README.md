@@ -21,8 +21,8 @@ Content
 [Background](#Background)
 ===========
 
-This version of swf2js is an adaption based on swf2js.js version 0.7.8 from
-[https://github.com/swf2js/swf2js.com/blob/master/assets/js/swf2js.js](https://github.com/swf2js/swf2js.com/blob/master/assets/js/swf2js.js)
+This version of swf2js is an adaption based on swf2js.js version 0.7.24 from
+[https://github.com/ienaga/swf2js](https://github.com/ienaga/swf2js)
 
 swf2js.min.js is the minified version created with [Google Closure Compiler)(https://developers.google.com/closure/compiler).
 
