@@ -27903,6 +27903,13 @@ if (!("swf2js" in window)) {
 		Stage.prototype.initCanvas = function() {
 			var _this = this;
 			var style;
+			
+			// avoid scaling problem
+			var head = _document.getElementsByTagName("head")[0];
+			var canvas_style = _document.createElement("style");
+			canvas_style.innerHTML = "canvas { width: 100%; height: 100%; display: block; }"
+			head.appendChild(canvas_style);
+			
 			var canvas = _document.createElement("canvas");
 			canvas.width = 1;
 			canvas.height = 1;
