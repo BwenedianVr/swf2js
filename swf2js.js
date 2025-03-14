@@ -1,5 +1,5 @@
 /**
- * swf2js version 1.1
+ * swf2js version 1.1.1
  * Based on : swf2js from Toshiyuki Ienaga (version 0.7.24 from https://github.com/ienaga/swf2js)
  * Develop: https://github.com/music4classicalguitar/swf2js
  * Info and demo : https://music4classicalguitar.github.io/swf2js/
@@ -27174,7 +27174,24 @@ if (!("swf2js" in window)) {
 					progressStepEnd(true);
 					showProgressTotalTime();
 					// exclude off
-					showResult("SWF-file '" + _this.url + "' Signature " + _this.signature + " Version " + _this.version + "\nfileLength " + _this.fileLength + " frameSize twips(x,y) [" + _this.bounds.xMin + "-" + _this.bounds.xMax + "," + _this.bounds.yMin + "-" + _this.bounds.yMax + "]\nframesPerSecond " + (1000 / _this.getFrameRate()) + " frameTime " + _this.getFrameRate() + " frameCount " + _this.frameCount + " duration " + _this.frameCount * _this.getFrameRate() / 1000 + "\nlang " + (navigator.language || navigator.userLanguage) + "\nautoplay audio " + autoPlayAudioAllowed + "\nsounds " + soundsUseType + " used " + soundsUsedType + " " + soundCount + " \nsoundstreams " + soundStreamsUseType + " used " + soundStreamsUsedType + " " + soundStreamCount + "\nautoplay video " + autoPlayVideoAllowed + "\nvideoCount " + videoCount + "\nquality " + quality + "\ngetTimeStamp " + getTimeStamp + "\nrequestAnimationFrame " + requestAnimationFrame + "\nua " + ua);
+					var div = _document.getElementById(_this.getName());
+					showResult("SWF-file '" + _this.url + "' Signature " + _this.signature + " Version " + _this.version + "\n" +
+						"fileLength " + _this.fileLength + 
+						" frameSize twips(x,y) [" + _this.bounds.xMin + "-" + _this.bounds.xMax + "," +
+						_this.bounds.yMin + "-" + _this.bounds.yMax + "] " + "\n" + 
+						"framesPerSecond " + (1000 / _this.getFrameRate()) + " frameTime " + _this.getFrameRate() +
+						" frameCount " + this.frameCount + " duration " + _this.frameCount * _this.getFrameRate() / 1000 + "\n" + 
+						"SWF [" + (this.bounds.xMax-_this.bounds.xMin)/20 + "-" + (_this.bounds.yMax-_this.bounds.yMin)/20 + "]" + "\n" +
+						"div [" + div.clientWidth + "-" + div.clientHeight + "]" + "\n" + 
+						"canvas [" + _this.canvas.width + "-" + _this.canvas.height + "]" + "\n" +
+						"canvas style [" + _this.canvas.style.width + "-" + _this.canvas.style.height + "]" + "\n" +
+						"scale " + _this.scale + " quality " + _this.quality + " " + quality + " dpr " + devicePixelRatio + "\n" +
+						"lang " + (navigator.language || navigator.userLanguage) + "\n" +
+						"autoplay audio " + autoPlayAudioAllowed + "\n" +
+						"sounds " + soundsUseType + " used " + soundsUsedType + " " + soundCount + "\n" +
+						"soundstreams " + soundStreamsUseType + " used " + soundStreamsUsedType + " " + soundStreamCount + "\n" +
+						"autoplay video " + autoPlayVideoAllowed + "\n" +
+						"videoCount " + videoCount + "\nquality " + quality + "\ngetTimeStamp " + getTimeStamp.name + "requestAnimationFrame " + requestAnimationFrame.name + "\nua " + ua);
 					if (autoPlayAllowed) _this.play();
 					break;
 			}
@@ -27912,11 +27929,8 @@ if (!("swf2js" in window)) {
 			style.position = "absolute";
 			style.top = 0;
 			style.left = 0;
-			style.zoom = 100 / _devicePixelRatio + "%";
-			style["-webkit-tap-highlight-color"] = "rgba(0,0,0,0)";
-
-			style.MozTransformOrigin = "0 0";
-			style.MozTransform = "scale(" + 1 / _devicePixelRatio + ")";
+			style["transform-origin"] = "0px 0px";
+			style.transform = "scale(" + 1 / _devicePixelRatio + ")";
 
 			if (isAndroid) {
 				canvas.addEventListener("touchcancel", function() {

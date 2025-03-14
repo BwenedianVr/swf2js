@@ -56,15 +56,15 @@ version that supports [Actionscript 3](https://en.wikipedia.org/wiki/ActionScrip
 [Options](#Options)
 =======
 
-  Option|Description|Additional information
-  -----------|---------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------
-  tagId       |Place swf-player in element with tag 'tagId'|                                
-  width       |Set width of swf-player|                                                     
-  height      |Set height of swf-player|                                                    
-  callback    |Function to be called when swf-player has loaded the swf-file |              
-  FlashVars   |                                       |                                     
-  quality     |Values : "low", use devicePixelRatio\*0.5 or "high", use devicePixelRatio|See [devicePixelRatio](https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio)
-  bgcolor     |Set background color |                                                       
+  Option|Description
+  -----------|---------------------------------------------------------------------------
+  tagId       |Place swf-player in element with tag 'tagId'
+  width       |Set width of swf-player
+  height      |Set height of swf-player
+  callback    |Function to be called when swf-player has loaded the swf-file
+  FlashVars   |
+  quality     |Values: "low": 0.25, "medium": 0.8 (default), "high": 1.0
+  bgcolor     |Set background color
 
 Example usage of options.
 
