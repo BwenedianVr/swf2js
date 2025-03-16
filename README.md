@@ -14,6 +14,8 @@ Content
 
 [Examples](#Examples)
 
+[Test](#Test)
+
 [Known problems](#Known_problems)
 
 [Information](#Information)
@@ -80,6 +82,11 @@ See [example\_options.html](https://music4classicalguitar.github.io/swf2js/examp
 [Examples](https://music4classicalguitar.github.io/swf2js/examples.html)
 
 [Animated music](https://music4classicalguitar.github.io/animatedmusic/animatedmusic.html)
+
+[Test](#Test)
+========
+
+To test with your own SWF-files, try [testbed.html](https://music4classicalguitar.github.io/swf2js/testbed.html)
 
 [Known problems](#Known_problems)
 ==============

@@ -1,5 +1,5 @@
 /**
- * swf2js version 1.1.1
+ * swf2js version 1.1.2
  * Based on : swf2js from Toshiyuki Ienaga (version 0.7.24 from https://github.com/ienaga/swf2js)
  * Develop: https://github.com/music4classicalguitar/swf2js
  * Info and demo : https://music4classicalguitar.github.io/swf2js/
@@ -280,6 +280,7 @@ if (!("swf2js" in window)) {
 		var framesUpTillNow = -1;
 		var oldFramesUpTillNow = -1;
 
+		var imageCount = 0;
 		var videoCount = 0;
 		var firstSound = true;
 
@@ -5651,6 +5652,7 @@ if (!("swf2js" in window)) {
 			// render
 			var stage = _this.stage;
 			stage.imgUnLoadCount++;
+			imageCount++;
 			var image = _document.createElement("img");
 			image.addEventListener("load", function() {
 				var width = this.width;
@@ -5701,50 +5703,244 @@ if (!("swf2js" in window)) {
 		};
 
 		/**
+		 * @param marker
+		 * @returns {hex}
+		 */
+		SwfTag.prototype.markerHasLength = function(marker) { 
+
+			const SOF0 = 0xC0; //Start of Frame 0
+			const SOF1 = 0xC1; //Start of Frame 1
+			const SOF2 = 0xC2; //Start of Frame 2
+			const SOF3 = 0xC3; //Start of Frame 3
+
+			const DHT = 0xC4; //Define Huffman Table
+
+			const SOF5 = 0xC5; //Start of Frame 5
+			const SOF6 = 0xC6; //Start of Frame 6
+			const SOF7 = 0xC7; //Start of Frame 7
+
+			const JPG = 0xC8; //JPEG Extensions
+
+			const SOF9 = 0xC9; //Start of Frame 9
+			const SOF10 = 0xCA; //Start of Frame 10
+			const SOF11 = 0xCB; //Start of Frame 11
+
+			const DAC = 0xCC; //Define Arithmetic Coding
+
+			const SOF13 = 0xCD; //Start of Frame 13
+			const SOF14 = 0xCE; //Start of Frame 14
+			const SOF15 = 0xCF; //Start of Frame 15
+
+			const RST0 = 0xD0; //Restart Marker 0
+			const RST1 = 0xD1; //Restart Marker 1
+			const RST2 = 0xD2; //Restart Marker 2
+			const RST3 = 0xD3; //Restart Marker 3
+			const RST4 = 0xD4; //Restart Marker 4
+			const RST5 = 0xD5; //Restart Marker 5
+			const RST6 = 0xD6; //Restart Marker 6
+			const RST7 = 0xD7; //Restart Marker 7
+
+			const SOI = 0xD8; //Start of Image
+			const EOI = 0xD9; //End of Image
+
+			const SOS = 0xDA; //Start of Scan
+			const DQT = 0xDB; //Define Quantization Table
+			const DNL = 0xDC; //Define Number of Lines
+			const DRI = 0xDD; //Define Restart Interval
+			const DHP = 0xDE; //Define Hierarchical Progression
+			const EXP = 0xDF; //Expand Reference Component
+
+			const APP0 = 0xE0; //Application Segment 0
+			const APP1 = 0xE1; //Application Segment 1
+			const APP2 = 0xE2; //Application Segment 2
+			const APP3 = 0xE3; //Application Segment 3
+			const APP4 = 0xE4; //Application Segment 4
+			const APP5 = 0xE5; //Application Segment 5
+			const APP6 = 0xE6; //Application Segment 6
+			const APP7 = 0xE7; //Application Segment 7
+			const APP8 = 0xE8; //Application Segment 8
+			const APP9 = 0xE9; //Application Segment 9
+			const APP10 = 0xEA; //Application Segment 10
+			const APP11 = 0xEB; //Application Segment 11
+			const APP12 = 0xEC; //Application Segment 12
+			const APP13 = 0xED; //Application Segment 13
+			const APP14 = 0xEE; //Application Segment 14
+			const APP15 = 0xEF; //Application Segment 15
+
+			const JPG0 = 0xF0; //JPEG Extension 0
+			const JPG1 = 0xF1; //JPEG Extension 1
+			const JPG2 = 0xF2; //JPEG Extension 2
+			const JPG3 = 0xF3; //JPEG Extension 3
+			const JPG4 = 0xF4; //JPEG Extension 4
+			const JPG5 = 0xF5; //JPEG Extension 5
+			const JPG6 = 0xF6; //JPEG Extension 6
+			const JPG7 = 0xF7; //JPEG Extension 7
+			const SOF48 = 0xF7; //JPEG-LS
+			const JPG8 = 0xF8; //JPEG Extension 8
+			const LSE = 0xF8; //JPEG Extension 8
+			const JPG9 = 0xF9; //JPEG Extension 9
+			const JPG10 = 0xFA; //JPEG Extension 10
+			const JPG11 = 0xFB; //JPEG Extension 11
+			const JPG12 = 0xFC; //JPEG Extension 12
+			const JPG13 = 0xFD; //JPEG Extension 13   
+			const COM = 0xFE; //Comment	   
+
+			return marker != 0
+				&& marker != SOI
+				&& marker != EOI
+				&& marker != RST0
+				&& marker != RST1
+				&& marker != RST2
+				&& marker != RST3
+				&& marker != RST4
+				&& marker != RST5
+				&& marker != RST6
+				&& marker != RST7;
+		}
+
+		/**
 		 * @param JPEGData
 		 * @returns {string}
 		 */
 		SwfTag.prototype.parseJpegData = function(JPEGData) {
-			var i = 0;
-			var idx = 0;
+			var _this = this;
+			const SOI = 0xD8;
+			const EOI = 0xD9;
+			var prevEoi = false;
 			var data = [];
+			var i = 0;
 			var p = 0;
-			var length = JPEGData.length;
-
-			// erroneous
-			if (JPEGData[0] === 0xFF && JPEGData[1] === 0xD9 && JPEGData[2] === 0xFF && JPEGData[3] === 0xD8) {
-				for (i = 4; i < length; i++) {
-					data[p++] = JPEGData[i];
+			var length = JPEGData.length-1;
+			var val = i<length?val=JPEGData[i++]:-1;
+			if (val == -1) return data;
+			
+			if (val == 0xFF) {
+				val = i<length?val=JPEGData[i++]:-1;
+				if (val == -1) {
+					data[++p] = 0xFF;
+					return data;
 				}
-			} else if (JPEGData[i++] === 0xFF && JPEGData[i++] === 0xD8) {
-				for (idx = 0; idx < i; idx++) {
-					data[p++] = JPEGData[idx];
+				if (val != SOI && val != EOI) {
+					//not a JPEG file, nor invalid header, proceed as is
+					data[++p] = 0xFF;
+					data[++p] = val;
+					while ((val = i<length?JPEGData[i++]:-1) > -1) {
+						data[++p] = val;
+					}
+					return data;
 				}
-				while (i < length) {
-					if (JPEGData[i] === 0xFF) {
-						if (JPEGData[i + 1] === 0xD9 && JPEGData[i + 2] === 0xFF && JPEGData[i + 3] === 0xD8) {
-							i += 4;
-							for (idx = i; idx < length; idx++) {
-								data[p++] = JPEGData[idx];
+				//Check for erroneous header at the beginning, before first SOI marker
+				if (val == EOI) {
+					val=i<length?JPEGData[i++]:-1;
+					var val2 = i<length?JPEGData[i++]:-1;
+					if (val == 0xFF && val2 == SOI) {
+						val = JPEGData[i++];
+						val2 = JPEGData[i++];
+						if (val != 0xFF || val2 != SOI) {
+							//not a JPEG file, proceed as is					   
+							data[++p] = 0xFF;
+							data[++p] = EOI;
+							data[++p] = 0xFF;
+							data[++p] = SOI;
+							if ((val = i<length?JPEGData[i++]:-1) > -1) {
+								data[++p] = val;
 							}
-							break;
-						} else if (JPEGData[i + 1] === 0xDA) {
-							for (idx = i; idx < length; idx++) {
-								data[p++] = JPEGData[idx];
+							if (val2 != -1) {
+								data[++p] = val2;
 							}
-							break;
-						} else {
-							var segmentLength = (JPEGData[i + 2] << 8) + JPEGData[i + 3] + i + 2;
-							for (idx = i; idx < segmentLength; idx++) {
-								data[p++] = JPEGData[idx];
+							while ((val = i<length?JPEGData[i++]:-1) > -1) {
+								data[++p] = val;
 							}
-							i += segmentLength - i;
+							return data;
 						}
+					} else {
+						//not a JPEG file, proceed as is
+						data[++p] = 0xFF;
+						data[++p] = EOI;
+						if (val != -1) {
+							data[++p] = val;
+						}
+						if (val2 != -1) {
+							data[++p] = val2;
+						}
+						while ((val = i<length?JPEGData[i++]:-1) > -1) {
+							data[++p] = val;
+						}
+						return data;
 					}
 				}
+				data[++p] = 0xFF;
+				data[++p] = EOI;
+			} else {
+				//not a JPEG file, proceed as is
+				data[++p] = val;
+				while ((val = i<length?JPEGData[i++]:-1) > -1) {
+					data[++p] = val;
+				}
+				return data;
+			}
+
+			//main removing EOI+SOI
+			loopread:
+			while ((val = i<length?JPEGData[i++]:-1) > -1) {
+				if (val == 0xFF) {
+					val = i<length?JPEGData[i++]:-1;
+					if (val == 0) {
+						data[++p] = 0xFF;
+						data[++p] = val;
+						prevEoi = false;
+						continue;
+					}
+					if (val == SOI && prevEoi) {
+						//ignore, effectively removing EOI and SOI
+					} else if (val == SOI) {
+						//second or more SOI in the file, remove that too
+					} else if (prevEoi) {
+						data[++p] = 0xFF;
+						data[++p] = EOI;
+						data[++p] = 0xFF;
+						if (val != -1) {
+							data[++p] = val;
+						}
+					} else if (val != EOI) {
+						data[++p] = 0xFF;
+						if (val != -1) {
+							data[++p] = val;
+						}
+					}
+					if (val != -1 && _this.markerHasLength(val)) {
+						var len1 = i<length?JPEGData[i++]:-1;
+						if (len1 == -1) {
+							break;
+						}
+						var len2 = i<length?JPEGData[i++]:-1;
+						if (len2 == -1) {
+							data[++p] = len1;
+							break;
+						}
+						data[++p] = len1;
+						data[++p] = len2;
+						var len = (len1 << 8) + len2;
+						for (var k = 0; k < len - 2; k++) {
+							var val2 = i<length?JPEGData[i++]:-1;
+							if (val2 == -1) {
+								break loopread;
+							}
+							data[++p] = val2;
+						}
+					}
+					prevEoi = val == EOI;
+				} else {
+					data[++p] = val;
+					prevEoi = false;
+				}
+			}
+			if (prevEoi) {
+				data[++p] = 0xFF;
+				data[++p] = EOI;
 			}
 			return data;
-		};
+		}
 
 		/**
 		 * @param data
@@ -27156,7 +27352,8 @@ if (!("swf2js" in window)) {
 					_this.loadStatus++;
 					break;
 				case 3:
-					if (!_this.isLoad || !_this.stopFlag || _this.imgUnLoadCount > 0 || _this.sndUnLoadCount > 0 || _this.sndStreamUnloadCount > 0) {
+					//if (!_this.isLoad || !_this.stopFlag || _this.imgUnLoadCount > 0 || _this.sndUnLoadCount > 0 || _this.sndStreamUnloadCount > 0) {
+					if (!_this.isLoad || !_this.stopFlag || _this.sndUnLoadCount > 0 || _this.sndStreamUnloadCount > 0) {
 						break;
 					}
 					_this.loadStatus++;
@@ -27190,8 +27387,9 @@ if (!("swf2js" in window)) {
 						"autoplay audio " + autoPlayAudioAllowed + "\n" +
 						"sounds " + soundsUseType + " used " + soundsUsedType + " " + soundCount + "\n" +
 						"soundstreams " + soundStreamsUseType + " used " + soundStreamsUsedType + " " + soundStreamCount + "\n" +
+						"images " + imageCount + "\n" +
 						"autoplay video " + autoPlayVideoAllowed + "\n" +
-						"videoCount " + videoCount + "\nquality " + quality + "\ngetTimeStamp " + getTimeStamp.name + "requestAnimationFrame " + requestAnimationFrame.name + "\nua " + ua);
+						"videos " + videoCount + "\nquality " + quality + "\ngetTimeStamp " + getTimeStamp.name + "requestAnimationFrame " + requestAnimationFrame.name + "\nua " + ua);
 					if (autoPlayAllowed) _this.play();
 					break;
 			}
@@ -27441,7 +27639,9 @@ if (!("swf2js" in window)) {
 			}
 
 			var jpegData = swftag.parseJpegData(data);
+			console.log("Image jpeg\n","data:image/jpeg;base64," + jpegData);
 			image.src = "data:image/jpeg;base64," + swftag.base64encode(jpegData);
+			
 		};
 
 		/**
